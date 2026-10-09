@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: #f6f8fc;
+  --color-navy: #14213d;
+  --color-muted: #65728a;
+  --color-brand: #2855e8;
+  --color-violet: #7857f7;
+  --color-teal: #12a6a0;
+  --color-amber: #f2a93b;
+  --color-coral: #e65362;
+  --color-line: #e3e8f1;
+  --color-ok: #1f9d68;
+}
+
+body {
+  background: #e9edf5;
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+}
+
+@keyframes pulse-ring {
+  0% { r: 10; opacity: 0.6; }
+  100% { r: 26; opacity: 0; }
+}
+.pulse { animation: pulse-ring 1.6s ease-out infinite; }
+@keyframes dash { to { stroke-dashoffset: -40; } }
+.flow { animation: dash 1.2s linear infinite; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.25s ease-out; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

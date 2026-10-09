@@ -1,0 +1,68 @@
+[
+  {
+    "id": "42452740-4f30-4f26-9164-de5191f33d83",
+    "incidentId": "587d4990-7f8b-4ff7-b568-dc26ee6f92a9",
+    "rawText": "Broken traffic light causing heavy gridlock at Goodluck Chowk",
+    "normalizedText": "traffic disruption reported: Broken traffic light causing heavy gridlock at Goodluck Chowk",
+    "incidentType": "traffic_disruption",
+    "locationText": "Goodluck Chowk, FC Road",
+    "latitude": 18.5186,
+    "longitude": 73.8415,
+    "observedAt": "2026-10-09T08:22:05.116Z",
+    "submittedAt": "2026-10-09T08:22:05.116Z",
+    "sourceKind": "citizen",
+    "sourceLabel": "NagarMitra Citizen Report",
+    "reporterTokenHash": null,
+    "photoUrl": null,
+    "voiceTranscript": null,
+    "aiExtractionJson": {
+      "incidentType": "traffic_disruption",
+      "summary": "traffic disruption reported: Broken traffic light causing heavy gridlock at Goodluck Chowk",
+      "locationText": "Goodluck Chowk",
+      "observedAt": null,
+      "severitySuggested": 3,
+      "uncertainties": [
+        "Extracted using keyword-based fallback (AI unavailable)",
+        "Severity is a default estimate based on incident type"
+      ],
+      "needsUserConfirmation": [
+        "location",
+        "severity"
+      ]
+    },
+    "isSimulated": false
+  },
+  {
+    "id": "c6ae2b2f-60e5-4ba7-9b3e-d835f8b09097",
+    "incidentId": "587d4990-7f8b-4ff7-b568-dc26ee6f92a9",
+    "rawText": "Traffic signal still malfunctioning at Goodluck, police directing manually",
+    "normalizedText": "traffic disruption reported: Traffic signal still malfunctioning at Goodluck, police directing manually",
+    "incidentType": "traffic_disruption",
+    "locationText": "Goodluck Cafe Chowk",
+    "latitude": 18.5187,
+    "longitude": 73.8416,
+    "observedAt": "2026-10-09T08:22:05.224Z",
+    "submittedAt": "2026-10-09T08:22:05.224Z",
+    "sourceKind": "citizen",
+    "sourceLabel": "NagarMitra Citizen Report",
+    "reporterTokenHash": null,
+    "photoUrl": null,
+    "voiceTranscript": null,
+    "aiExtractionJson": {
+      "incidentType": "traffic_disruption",
+      "summary": "traffic disruption reported: Traffic signal still malfunctioning at Goodluck, police directing manually",
+      "locationText": null,
+      "observedAt": null,
+      "severitySuggested": 3,
+      "uncertainties": [
+        "Extracted using keyword-based fallback (AI unavailable)",
+        "Severity is a default estimate based on incident type"
+      ],
+      "needsUserConfirmation": [
+        "location",
+        "severity"
+      ]
+    },
+    "isSimulated": false
+  }
+]

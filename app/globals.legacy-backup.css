@@ -1,0 +1,343 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ============================================================
+   CityPulse AI — Design System
+   Premium, trustworthy, map-first design
+   ============================================================ */
+
+:root {
+  /* Primary palette */
+  --cp-bg-primary: #0a0e1a;
+  --cp-bg-secondary: #111827;
+  --cp-bg-card: #1a2235;
+  --cp-bg-card-hover: #1f2a40;
+  --cp-bg-glass: rgba(26, 34, 53, 0.85);
+  --cp-border: rgba(99, 125, 175, 0.2);
+  --cp-border-active: rgba(99, 179, 237, 0.5);
+
+  /* Text */
+  --cp-text-primary: #e8edf5;
+  --cp-text-secondary: #94a3b8;
+  --cp-text-muted: #64748b;
+
+  /* Accent colors */
+  --cp-accent: #3b82f6;
+  --cp-accent-glow: rgba(59, 130, 246, 0.3);
+  --cp-success: #10b981;
+  --cp-warning: #f59e0b;
+  --cp-danger: #ef4444;
+  --cp-info: #6366f1;
+
+  /* Status colors */
+  --cp-unverified: #f59e0b;
+  --cp-corroborated: #3b82f6;
+  --cp-authority: #10b981;
+  --cp-contested: #ef4444;
+
+  /* Freshness colors */
+  --cp-recent: #10b981;
+  --cp-aging: #f59e0b;
+  --cp-stale: #6b7280;
+
+  /* Incident type colors */
+  --cp-waterlogging: #06b6d4;
+  --cp-road-damage: #f97316;
+  --cp-obstruction: #a855f7;
+  --cp-traffic: #ef4444;
+  --cp-streetlight: #eab308;
+  --cp-accident: #dc2626;
+  --cp-cleanliness: #84cc16;
+  --cp-other: #6b7280;
+
+  /* Shadows */
+  --cp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --cp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --cp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --cp-shadow-glow: 0 0 20px var(--cp-accent-glow);
+
+  /* Transitions */
+  --cp-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--cp-bg-primary);
+  color: var(--cp-text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cp-bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cp-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cp-text-muted);
+}
+
+/* ============================================================
+   Leaflet Map Overrides
+   ============================================================ */
+.leaflet-container {
+  background: var(--cp-bg-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--cp-bg-card) !important;
+  color: var(--cp-text-primary) !important;
+  border-color: var(--cp-border) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--cp-bg-card-hover) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 14, 26, 0.85) !important;
+  color: var(--cp-text-muted) !important;
+  font-size: 10px !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--cp-accent) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--cp-bg-card) !important;
+  color: var(--cp-text-primary) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--cp-shadow-lg) !important;
+  border: 1px solid var(--cp-border) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--cp-bg-card) !important;
+  border: 1px solid var(--cp-border) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--cp-text-secondary) !important;
+}
+
+/* ============================================================
+   Glass Card
+   ============================================================ */
+.glass-card {
+  background: var(--cp-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  box-shadow: var(--cp-shadow-md);
+}
+
+/* ============================================================
+   Custom Markers
+   ============================================================ */
+.custom-marker-place {
+  background: none !important;
+  border: none !important;
+}
+
+.custom-marker-incident {
+  background: none !important;
+  border: none !important;
+}
+
+.marker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.marker-icon:hover {
+  transform: scale(1.2);
+}
+
+.marker-icon.incident {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* ============================================================
+   Status Badges
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.badge-unverified {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--cp-unverified);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-corroborated {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--cp-corroborated);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-authority {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--cp-authority);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-contested {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--cp-contested);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-recent {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--cp-recent);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-aging {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--cp-aging);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-stale {
+  background: rgba(107, 114, 128, 0.15);
+  color: var(--cp-stale);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.badge-simulated {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  animation: slide-in-up 0.3s ease-out;
+}
+
+/* ============================================================
+   Impact Replay specific
+   ============================================================ */
+.impact-before {
+  border-left: 3px solid var(--cp-text-muted);
+  padding-left: 12px;
+}
+
+.impact-after {
+  border-left: 3px solid var(--cp-accent);
+  padding-left: 12px;
+}
+
+.impact-changed {
+  border-left: 3px solid var(--cp-warning);
+  padding-left: 12px;
+}
+
+.impact-unchanged {
+  border-left: 3px solid var(--cp-success);
+  padding-left: 12px;
+}
+
+/* ============================================================
+   Loading pulse
+   ============================================================ */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--cp-bg-card) 25%, var(--cp-bg-card-hover) 50%, var(--cp-bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}

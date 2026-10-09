@@ -1,0 +1,60 @@
+{
+  "scenarioId": "central-pune-demo-01",
+  "originPlaceId": "place-010",
+  "destinationPlaceId": "place-012",
+  "originName": "Deccan Gymkhana",
+  "destinationName": "Koregaon Park",
+  "originCoords": [73.8420, 18.5204],
+  "destinationCoords": [73.8938, 18.5362],
+  "routes": [
+    {
+      "id": "route-primary-jm-road",
+      "label": "Route A (via JM Road & Sangamwadi)",
+      "distance": 6450,
+      "duration": 1140,
+      "source": "demo_fixture",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [73.8420, 18.5204],
+          [73.8435, 18.5218],
+          [73.8450, 18.5228],
+          [73.8465, 18.5230],
+          [73.8485, 18.5245],
+          [73.8510, 18.5270],
+          [73.8540, 18.5305],
+          [73.8610, 18.5320],
+          [73.8680, 18.5300],
+          [73.8740, 18.5290],
+          [73.8820, 18.5350],
+          [73.8880, 18.5358],
+          [73.8938, 18.5362]
+        ]
+      }
+    },
+    {
+      "id": "route-alt-shivaji-bridge",
+      "label": "Route B (via Shivaji Bridge & RTO)",
+      "distance": 7180,
+      "duration": 1380,
+      "source": "demo_fixture",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [73.8420, 18.5204],
+          [73.8450, 18.5185],
+          [73.8480, 18.5175],
+          [73.8530, 18.5180],
+          [73.8560, 18.5200],
+          [73.8580, 18.5240],
+          [73.8620, 18.5290],
+          [73.8640, 18.5320],
+          [73.8720, 18.5340],
+          [73.8800, 18.5348],
+          [73.8860, 18.5352],
+          [73.8938, 18.5362]
+        ]
+      }
+    }
+  ]
+}

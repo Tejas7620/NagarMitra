@@ -1,0 +1,10 @@
+{
+  "description": "NagarMitra AI empowers city explorers in Pune to report issues and assess their impact on routes, enhancing decision-making with real-time evidence.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
