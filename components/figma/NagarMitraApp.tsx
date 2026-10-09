@@ -313,21 +313,21 @@ function DiamondMark({ x, y, v, sim, size = 11 }: { x: number; y: number; v: Ver
 }
 function Legend({ onClose }: { onClose: () => void }) {
   const mk = (v: Verif, sim = false) => <svg width="24" height="24" viewBox="0 0 24 24"><DiamondMark x={12} y={12} v={v} sim={sim} size={7.5} /></svg>
-  const rows: [ReactNode, string][] = [
-    [<svg width="18" height="20" viewBox="0 0 24 28"><path d="M12 26 1 11a11 11 0 1 1 22 0z" fill="#2855e8" /><circle cx="12" cy="11" r="4" fill="#fff" /></svg>, 'Place (pin)'],
-    [mk('Unverified'), 'Unverified report (hollow, !)'],
-    [mk('Corroborated'), 'Corroborated (filled, ✓)'],
-    [mk('Authority-confirmed'), 'Authority-confirmed (dark, ★)'],
-    [mk('Contested'), 'Contested (violet, ?)'],
-    [mk('Unverified', true), 'Simulated demo (dashed edge)'],
-    [<svg width="24" height="8"><path d="M0 4h24" stroke="#2855e8" strokeWidth="4" /></svg>, 'Baseline route (solid)'],
-    [<svg width="24" height="8"><path d="M0 4h24" stroke="#12a6a0" strokeWidth="4" strokeDasharray="6 4" /></svg>, 'Alternative route (dashed)'],
-  ]
+  const rows = [
+    { id: 'place', icon: <svg width="18" height="20" viewBox="0 0 24 28"><path d="M12 26 1 11a11 11 0 1 1 22 0z" fill="#2855e8" /><circle cx="12" cy="11" r="4" fill="#fff" /></svg>, label: 'Place (pin)' },
+    { id: 'unverified', icon: mk('Unverified'), label: 'Unverified report (hollow, !)' },
+    { id: 'corroborated', icon: mk('Corroborated'), label: 'Corroborated (filled, ✓)' },
+    { id: 'authority', icon: mk('Authority-confirmed'), label: 'Authority-confirmed (dark, ★)' },
+    { id: 'contested', icon: mk('Contested'), label: 'Contested (violet, ?)' },
+    { id: 'simulated', icon: mk('Unverified', true), label: 'Simulated demo (dashed edge)' },
+    { id: 'baseline', icon: <svg width="24" height="8"><path d="M0 4h24" stroke="#2855e8" strokeWidth="4" /></svg>, label: 'Baseline route (solid)' },
+    { id: 'alternative', icon: <svg width="24" height="8"><path d="M0 4h24" stroke="#12a6a0" strokeWidth="4" strokeDasharray="6 4" /></svg>, label: 'Alternative route (dashed)' },
+  ];
   return (
     <div className="rise absolute right-16 top-3 z-20 w-64 rounded-2xl bg-white p-3 text-[13px] shadow-xl ring-1 ring-line" role="dialog" aria-label="Map legend">
       <div className="mb-1 flex items-center justify-between font-bold">Map legend<button onClick={onClose} aria-label="Close legend" className="grid size-9 place-items-center rounded-full bg-bg"><Icon n="x" s={16} /></button></div>
       <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-muted">Verification</p>
-      {rows.map(([i, l], k) => <div key={k} className="flex items-center gap-2 py-0.5"><span className="grid w-6 place-items-center">{i}</span>{l}</div>)}
+      {rows.map((r) => <div key={r.id} className="flex items-center gap-2 py-0.5"><span className="grid w-6 place-items-center">{r.icon}</span>{r.label}</div>)}
       <p className="mt-2 border-t border-line pt-2 text-[12px] text-muted"><b className="text-navy">Freshness is separate:</b> shown as a clock badge in details. Stale markers appear faded.</p>
     </div>
   )

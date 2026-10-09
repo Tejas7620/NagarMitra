@@ -6,7 +6,7 @@
 // ============================================================
 import { NextRequest, NextResponse } from 'next/server';
 import { getActiveIncidents, getIncidentById, getCachedRoute, setCachedRoute } from '@/lib/repositories/store';
-import { calculateRouteExposure, compareRouteExposures, selectRecommendedRoute } from '@/lib/geo/route-exposure';
+import { compareRouteExposures, selectRecommendedRoute } from '@/lib/geo/route-exposure';
 import { ImpactReplaySchema } from '@/lib/validations/schemas';
 import { RouteCandidate, RouteScenario, RouteSource } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';

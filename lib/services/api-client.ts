@@ -187,7 +187,7 @@ export class NagarMitraApiClient {
   /**
    * Fetches detailed incident by ID.
    */
-  async getIncident(id: string): Promise<any> {
+  async getIncident(id: string): Promise<{ success: boolean; incident: Incident }> {
     const res = await fetch(`${this.baseUrl}/api/incidents/${id}`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
@@ -199,7 +199,7 @@ export class NagarMitraApiClient {
   /**
    * Fetches full evidence ledger and breakdown for an incident.
    */
-  async getIncidentEvidence(id: string): Promise<any> {
+  async getIncidentEvidence(id: string): Promise<Record<string, unknown>> {
     const res = await fetch(`${this.baseUrl}/api/incidents/${id}/evidence`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
@@ -215,7 +215,7 @@ export class NagarMitraApiClient {
     placeIds: string[];
     preferences?: { budgetWeight?: number; distanceWeight?: number; reportWeight?: number };
     origin?: { latitude: number; longitude: number };
-  }): Promise<any> {
+  }): Promise<Record<string, unknown>> {
     const res = await fetch(`${this.baseUrl}/api/places/compare`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -234,7 +234,7 @@ export class NagarMitraApiClient {
     budget?: '₹' | '₹₹' | '₹₹₹';
     duration?: string;
     travelMode?: 'walking' | 'driving' | 'cycling';
-  }): Promise<any> {
+  }): Promise<Record<string, unknown>> {
     const res = await fetch(`${this.baseUrl}/api/itinerary`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -247,7 +247,7 @@ export class NagarMitraApiClient {
   /**
    * Fetches live weather conditions for coordinates via Open-Meteo.
    */
-  async getWeather(latitude: number, longitude: number): Promise<any> {
+  async getWeather(latitude: number, longitude: number): Promise<Record<string, unknown>> {
     const res = await fetch(`${this.baseUrl}/api/weather?latitude=${latitude}&longitude=${longitude}`, {
       method: 'GET',
       headers: { Accept: 'application/json' },

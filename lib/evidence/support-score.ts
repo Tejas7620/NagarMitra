@@ -1,7 +1,7 @@
 // ============================================================
 // CityPulse AI — Evidence Engine: Support Score & Status
 // ============================================================
-import { Incident, VerificationStatus, FreshnessStatus } from '../types';
+import { Incident, VerificationStatus } from '../types';
 import { freshnessFactor } from './freshness';
 
 /**

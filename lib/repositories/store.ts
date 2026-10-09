@@ -101,7 +101,7 @@ function saveReportsToDisk(data: Report[]) {
 let places: Place[] = placesData as Place[];
 let incidents: Incident[] = loadInitialIncidents();
 let reports: Report[] = loadInitialReports();
-let cachedRoutes: Map<string, RouteScenario> = new Map();
+const cachedRoutes: Map<string, RouteScenario> = new Map();
 
 // ============================================================
 // Places
