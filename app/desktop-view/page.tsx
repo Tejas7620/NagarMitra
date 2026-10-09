@@ -20,9 +20,7 @@ import {
   Loader2, 
   Sparkles, 
   AlertCircle, 
-  Layers, 
-  Compass, 
-  Navigation 
+  Layers 
 } from 'lucide-react';
 
 // Dynamically import LeafletMap with SSR disabled
@@ -123,9 +121,16 @@ export default function Home() {
 
   // Initial load
   useEffect(() => {
-    fetchPlaces();
-    fetchIncidents();
-    fetchRoutes();
+    let active = true;
+    const initialize = async () => {
+      if (active) {
+        await Promise.all([fetchPlaces(), fetchIncidents(), fetchRoutes()]);
+      }
+    };
+    initialize();
+    return () => {
+      active = false;
+    };
   }, [fetchPlaces, fetchIncidents, fetchRoutes]);
 
   // Recalculate route exposure whenever routes or incidents update

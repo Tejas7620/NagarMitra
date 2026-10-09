@@ -56,8 +56,9 @@ export async function GET(request: NextRequest) {
           timestamp: new Date().toISOString(),
         });
       }
-    } catch (err: any) {
-      console.warn('Reverse geocoding fetch failed:', err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn('Reverse geocoding fetch failed:', msg);
     }
 
     // Fallback response with coordinates representation
@@ -70,13 +71,20 @@ export async function GET(request: NextRequest) {
       source: 'fallback_coordinates',
       timestamp: new Date().toISOString(),
     });
-  } catch (error: any) {
-    if (error?.digest?.startsWith?.('NEXT_')) {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof (error as { digest?: string }).digest === 'string' &&
+      (error as { digest: string }).digest.startsWith('NEXT_')
+    ) {
       throw error;
     }
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Reverse geocoding error:', error);
     return NextResponse.json(
-      { error: 'Failed to process reverse geocoding', details: error.message },
+      { error: 'Failed to process reverse geocoding', details: message },
       { status: 500 }
     );
   }

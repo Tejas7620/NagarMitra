@@ -177,10 +177,17 @@ export async function GET(request: NextRequest) {
       attribution: '© OpenStreetMap contributors, Pune Municipal Corporation Open Data',
       timestamp: new Date().toISOString(),
     });
-  } catch (error: any) {
-    if (error?.digest?.startsWith?.('NEXT_')) {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof (error as { digest?: string }).digest === 'string' &&
+      (error as { digest: string }).digest.startsWith('NEXT_')
+    ) {
       throw error;
     }
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Failed to query places:', error);
     return NextResponse.json(
       {
@@ -188,7 +195,7 @@ export async function GET(request: NextRequest) {
         error: {
           code: 'PLACES_QUERY_ERROR',
           message: 'Failed to process place discovery request',
-          details: error.message,
+          details: message,
         },
       },
       { status: 500 }

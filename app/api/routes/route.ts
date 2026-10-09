@@ -45,18 +45,28 @@ async function fetchLiveOSRMRoutes(
     throw new Error(data.message || 'No route found between given coordinates');
   }
 
-  return data.routes.map((r: any, idx: number) => ({
-    id: uuidv4(),
-    geometry: {
-      type: 'LineString' as const,
-      coordinates: r.geometry.coordinates as [number, number][],
-    },
-    distance: Math.round(r.legs[0].distance),
-    duration: Math.round(r.legs[0].duration),
-    source: 'live' as RouteSource,
-    label: idx === 0 ? 'Fastest Route' : `Alternative Route ${idx}`,
-    fetchedAt: new Date().toISOString(),
-  }));
+  return data.routes.map(
+    (
+      r: { geometry: { coordinates: [number, number][] }; legs: Array<{ distance: number; duration: number }> },
+      idx: number
+    ) => ({
+      id: uuidv4(),
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: r.geometry.coordinates,
+      },
+      distance: Math.round(r.legs[0].distance),
+      duration: Math.round(r.legs[0].duration),
+      source: 'live' as RouteSource,
+      label: idx === 0 ? 'Fastest Route' : `Alternative Route ${idx}`,
+      fetchedAt: new Date().toISOString(),
+    })
+  );
+}
+
+interface EvaluatedRouteCandidate extends RouteCandidate {
+  totalExposureIndex?: number;
+  affectedIncidents?: unknown[];
 }
 
 async function executeRouting(params: {
@@ -77,8 +87,9 @@ async function executeRouting(params: {
 
   try {
     rawRoutes = await fetchLiveOSRMRoutes(originLng, originLat, destLng, destLat, mode, alternatives);
-  } catch (osrmError: any) {
-    console.warn('OSRM live call failed, using fallback corridor:', osrmError.message);
+  } catch (osrmError: unknown) {
+    const errorMsg = osrmError instanceof Error ? osrmError.message : String(osrmError);
+    console.warn('OSRM live call failed, using fallback corridor:', errorMsg);
 
     // Fallback straight corridor representation labeled clearly as cached estimation
     rawRoutes = [
@@ -111,7 +122,7 @@ async function executeRouting(params: {
   }
 
   // Evaluate evidence exposure for each route using Turf.js
-  const evaluatedRoutes = rawRoutes.map((r, index) => {
+  const evaluatedRoutes: EvaluatedRouteCandidate[] = rawRoutes.map((r, index) => {
     const exposure = calculateRouteExposure(r, activeIncidents);
     return {
       ...r,
@@ -127,8 +138,8 @@ async function executeRouting(params: {
   });
 
   if (evaluatedRoutes.length > 1) {
-    const baseExposure = (evaluatedRoutes[0] as any).totalExposureIndex || 0;
-    const altExposure = (evaluatedRoutes[1] as any).totalExposureIndex || 0;
+    const baseExposure = evaluatedRoutes[0].totalExposureIndex || 0;
+    const altExposure = evaluatedRoutes[1].totalExposureIndex || 0;
     if (altExposure < baseExposure) {
       evaluatedRoutes[1].label = 'Lower Reported Risk';
     }
@@ -174,7 +185,7 @@ export async function POST(request: NextRequest) {
       destName: destination.name,
     });
 
-    const normalizedRoutes = evaluatedRoutes.map((r) => ({
+    const normalizedRoutes = evaluatedRoutes.map((r: EvaluatedRouteCandidate) => ({
       id: r.id,
       geometry: r.geometry,
       distanceMeters: r.distance,
@@ -183,8 +194,8 @@ export async function POST(request: NextRequest) {
       source: r.source,
       label: r.label,
       isDemo: r.source === 'demo_fixture',
-      exposureScore: (r as any).totalExposureIndex || 0,
-      affectedIncidents: (r as any).affectedIncidents || [],
+      exposureScore: r.totalExposureIndex || 0,
+      affectedIncidents: r.affectedIncidents || [],
     }));
 
     return NextResponse.json({
@@ -196,10 +207,11 @@ export async function POST(request: NextRequest) {
       count: normalizedRoutes.length,
       timestamp: new Date().toISOString(),
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('POST /api/routes exception:', err);
     return NextResponse.json(
-      { error: 'Failed to calculate route', details: err.message },
+      { error: 'Failed to calculate route', details: message },
       { status: 500 }
     );
   }
@@ -234,13 +246,20 @@ export async function GET(request: NextRequest) {
       count: evaluatedRoutes.length,
       timestamp: new Date().toISOString(),
     });
-  } catch (err: any) {
-    if (err?.digest?.startsWith?.('NEXT_')) {
+  } catch (err: unknown) {
+    if (
+      err &&
+      typeof err === 'object' &&
+      'digest' in err &&
+      typeof (err as { digest?: string }).digest === 'string' &&
+      (err as { digest: string }).digest.startsWith('NEXT_')
+    ) {
       throw err;
     }
+    const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('GET /api/routes exception:', err);
     return NextResponse.json(
-      { error: 'Failed to calculate route', details: err.message },
+      { error: 'Failed to calculate route', details: message },
       { status: 500 }
     );
   }

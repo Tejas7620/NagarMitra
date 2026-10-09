@@ -99,7 +99,7 @@
     "longitude": 73.834,
     "severity": 3,
     "verificationStatus": "corroborated",
-    "freshnessStatus": "recent",
+    "freshnessStatus": "aging",
     "firstObservedAt": "2026-10-09T09:30:00+05:30",
     "lastObservedAt": "2026-10-09T11:00:00+05:30",
     "lastReportedAt": "2026-10-09T11:00:00+05:30",
@@ -228,7 +228,7 @@
     "isResolved": false
   },
   {
-    "id": "587d4990-7f8b-4ff7-b568-dc26ee6f92a9",
+    "id": "70926387-8321-473c-8409-f07b1223f8c9",
     "incidentType": "traffic_disruption",
     "title": "traffic disruption reported: Broken traffic light causing heavy gridlock at Good",
     "summary": "traffic disruption reported: Broken traffic light causing heavy gridlock at Goodluck Chowk",
@@ -237,9 +237,9 @@
     "severity": 3,
     "verificationStatus": "corroborated",
     "freshnessStatus": "recent",
-    "firstObservedAt": "2026-10-09T08:22:05.116Z",
-    "lastObservedAt": "2026-10-09T08:22:05.224Z",
-    "lastReportedAt": "2026-10-09T08:22:05.224Z",
+    "firstObservedAt": "2026-10-09T09:06:13.520Z",
+    "lastObservedAt": "2026-10-09T09:06:13.749Z",
+    "lastReportedAt": "2026-10-09T09:06:13.749Z",
     "distinctSubmissionCount": 2,
     "evidenceSupportScore": 0.7,
     "evidenceReasons": [
@@ -250,7 +250,7 @@
     ],
     "isSimulated": false,
     "isResolved": false,
-    "createdAt": "2026-10-09T08:22:05.116Z",
-    "updatedAt": "2026-10-09T08:22:05.224Z"
+    "createdAt": "2026-10-09T09:06:13.520Z",
+    "updatedAt": "2026-10-09T09:06:13.750Z"
   }
 ]

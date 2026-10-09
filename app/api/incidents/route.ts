@@ -114,8 +114,14 @@ export async function GET(request: NextRequest) {
       dataMode: hasSimulated && hasReal ? 'mixed' : hasSimulated ? 'demo' : dataMode,
       timestamp: new Date().toISOString(),
     });
-  } catch (error: any) {
-    if (error?.digest?.startsWith?.('NEXT_')) {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof (error as { digest?: string }).digest === 'string' &&
+      (error as { digest: string }).digest.startsWith('NEXT_')
+    ) {
       throw error;
     }
     console.error('Failed to load incidents:', error);

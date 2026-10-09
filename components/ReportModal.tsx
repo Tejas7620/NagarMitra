@@ -4,16 +4,13 @@ import React, { useState, useRef } from 'react';
 import { 
   X, 
   Send, 
-  MapPin, 
   AlertTriangle, 
   Sparkles, 
   CheckCircle2, 
-  Clock,
   Compass,
   Zap,
   Camera,
   Mic,
-  Image as ImageIcon,
   Trash2
 } from 'lucide-react';
 import { ReportResponse } from '@/lib/types';
@@ -84,17 +81,19 @@ export default function ReportModal({
   const [recSeconds, setRecSeconds] = useState(0);
   const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recognitionRef = useRef<any>(null);
-  const timerRef = useRef<any>(null);
+  const recognitionRef = useRef<unknown>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Sync if map was clicked
-  React.useEffect(() => {
+  // Synchronize if map was clicked
+  const [prevPinned, setPrevPinned] = useState(pinnedLocation);
+  if (pinnedLocation !== prevPinned) {
+    setPrevPinned(pinnedLocation);
     if (pinnedLocation) {
       setLatitude(pinnedLocation.lat);
       setLongitude(pinnedLocation.lng);
       setLocationText(`Pinned Location (${pinnedLocation.lat}, ${pinnedLocation.lng})`);
     }
-  }, [pinnedLocation]);
+  }
 
   if (!isOpen) return null;
 
@@ -119,7 +118,7 @@ export default function ReportModal({
       if (res.url) {
         setPhotoUrl(res.url);
       }
-    } catch (err: any) {
+    } catch {
       setPhotoUrl(URL.createObjectURL(file));
     } finally {
       setIsUploading(false);
@@ -131,34 +130,46 @@ export default function ReportModal({
     setRecSeconds(0);
     timerRef.current = setInterval(() => setRecSeconds((s) => s + 1), 1000);
 
-    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      try {
-        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const rec = new SpeechRec();
-        rec.continuous = true;
-        rec.interimResults = true;
-        rec.lang = 'en-IN';
+    if (typeof window !== 'undefined') {
+      const win = window as unknown as Record<string, unknown>;
+      if ('webkitSpeechRecognition' in win || 'SpeechRecognition' in win) {
+        try {
+          const SpeechRec = (win.SpeechRecognition || win.webkitSpeechRecognition) as new () => {
+            continuous: boolean;
+            interimResults: boolean;
+            lang: string;
+            onresult: (event: { resultIndex: number; results: Array<Array<{ transcript: string }>> }) => void;
+            start: () => void;
+            stop: () => void;
+          };
+          const rec = new SpeechRec();
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.lang = 'en-IN';
 
-        rec.onresult = (event: any) => {
-          let transcript = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
-          }
-          if (transcript.trim()) {
-            setVoiceTranscript(transcript);
-            setText(transcript);
-          }
-        };
-        rec.start();
-        recognitionRef.current = rec;
-      } catch (e) {}
+          rec.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              transcript += event.results[i][0].transcript;
+            }
+            if (transcript.trim()) {
+              setVoiceTranscript(transcript);
+              setText(transcript);
+            }
+          };
+          rec.start();
+          recognitionRef.current = rec;
+        } catch {
+          // Gracefully continue if microphone permission denied
+        }
+      }
     }
   };
 
   const stopVoiceRecording = () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (e) {}
+    if (recognitionRef.current && typeof (recognitionRef.current as { stop?: () => void }).stop === 'function') {
+      try { (recognitionRef.current as { stop: () => void }).stop(); } catch { /* ignore */ }
     }
     setIsRecording(false);
   };

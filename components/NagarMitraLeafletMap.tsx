@@ -191,6 +191,7 @@ export default function NagarMitraLeafletMap({
       mapRef.current = null;
       layersRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update User Current Location Marker
@@ -382,7 +383,7 @@ export default function NagarMitraLeafletMap({
           if (origin) bounds.extend([origin.lat, origin.lng]);
           if (destination) bounds.extend([destination.lat, destination.lng]);
           map.fitBounds(bounds, { padding: [35, 35], maxZoom: 16 });
-        } catch (fitErr) {
+        } catch {
           // ignore invalid bounds
         }
       }

@@ -6,21 +6,17 @@ import {
   Play, 
   RotateCcw, 
   CheckCircle2, 
-  ArrowRight, 
   Clock, 
-  ShieldCheck, 
-  AlertTriangle,
-  History,
-  Navigation,
-  Sparkles,
-  Info
+  History, 
+  Sparkles, 
+  Info 
 } from 'lucide-react';
 import { Incident, ImpactReplayResult } from '@/lib/types';
 
 interface ImpactReplayModalProps {
   isOpen: boolean;
   onClose: () => void;
-  incidents: Incident[];
+  incidents?: Incident[];
   onTriggerReplay: (incidentId: string) => Promise<ImpactReplayResult | null>;
   onApplyRoute: (routeId: string) => void;
 }
@@ -28,7 +24,7 @@ interface ImpactReplayModalProps {
 export default function ImpactReplayModal({
   isOpen,
   onClose,
-  incidents,
+  incidents: _incidents,
   onTriggerReplay,
   onApplyRoute,
 }: ImpactReplayModalProps) {

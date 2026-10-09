@@ -66,21 +66,38 @@ function getPlaceImageForCategory(cat: string): string {
   return IMG.museum
 }
 
-function mapInitialPlaces(raw: any[]): MapPlace[] {
-  return raw.map((p) => ({
-    id: p.id,
-    name: p.name,
-    cat: p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : 'Heritage',
-    dist: p.distanceFormatted || '1.5 km',
-    price: p.priceBand === 0 ? 'Free' : p.priceBand === 1 ? '₹ (budget)' : p.priceBand === 2 ? '₹₹ (moderate)' : '₹₹₹ (premium)',
-    rating: p.rating ? `${p.rating} ★` : null,
-    access: p.accessibilityStatus === 'known' ? 'Accessible' : p.accessibilityStatus === 'limited' ? 'Limited' : 'Unknown',
-    clean: 'Municipal civic area',
-    desc: p.shortDescription || '',
-    lat: p.latitude,
-    lng: p.longitude,
-    img: getPlaceImageForCategory(p.category || ''),
-  }))
+function mapInitialPlaces(raw: Array<Place | Record<string, unknown>>): MapPlace[] {
+  return raw.map((item) => {
+    const p = item as Record<string, unknown>
+    const category = typeof p.category === 'string' ? p.category : ''
+    const name = typeof p.name === 'string' ? p.name : ''
+    const id = String(p.id ?? '')
+    const lat = typeof p.latitude === 'number' ? p.latitude : typeof p.lat === 'number' ? (p.lat as number) : 18.5204
+    const lng = typeof p.longitude === 'number' ? p.longitude : typeof p.lng === 'number' ? (p.lng as number) : 73.8567
+    const desc = typeof p.shortDescription === 'string' ? p.shortDescription : typeof p.desc === 'string' ? (p.desc as string) : ''
+    const dist = typeof p.distanceFormatted === 'string' ? p.distanceFormatted : '1.5 km'
+    const priceBand = typeof p.priceBand === 'number' ? p.priceBand : null
+    const price = priceBand === 0 ? 'Free' : priceBand === 1 ? '₹ (budget)' : priceBand === 2 ? '₹₹ (moderate)' : priceBand === 3 ? '₹₹₹ (premium)' : '₹ (budget)'
+    const rating = p.rating ? `${p.rating} ★` : null
+    const access = p.accessibilityStatus === 'known' ? 'Accessible' : p.accessibilityStatus === 'limited' ? 'Limited' : 'Unknown'
+    const clean = typeof p.cleanlinessValue === 'number' ? `${p.cleanlinessValue}/5` : 'Municipal civic area'
+    const img = typeof p.img === 'string' ? (p.img as string) : getPlaceImageForCategory(category)
+
+    return {
+      id,
+      name,
+      cat: category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Heritage',
+      dist,
+      price,
+      rating,
+      access,
+      clean,
+      desc,
+      lat,
+      lng,
+      img,
+    }
+  })
 }
 
 /* ---------------- Icons ---------------- */
@@ -183,17 +200,6 @@ function Header({ title, onBack, right, sub, dark }: { title: string; onBack?: (
 function Note({ children, tone = 'info' }: { children: ReactNode; tone?: 'info' | 'warn' | 'demo' }) {
   const c = { info: 'bg-brand/5 text-navy ring-brand/15', warn: 'bg-amber/10 text-[#6e4708] ring-amber/40', demo: 'bg-violet/5 text-[#4b33b5] ring-violet/20' }[tone]
   return <div className={`flex gap-2 rounded-2xl p-3 text-[13px] leading-snug ring-1 ${c}`}><Icon n={tone === 'warn' ? 'alert' : 'info'} s={16} className="mt-0.5 shrink-0" /><div>{children}</div></div>
-}
-function Expand({ title, children, open: o = false }: { title: string; children: ReactNode; open?: boolean }) {
-  const [open, setOpen] = useState(o)
-  return (
-    <div className="border-t border-line pt-2">
-      <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex min-h-11 w-full items-center justify-between text-left text-[14px] font-bold text-brand">
-        {title}<Icon n="chev" s={18} className={`transition ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && <div className="rise pb-2 text-[14px] text-navy">{children}</div>}
-    </div>
-  )
 }
 function Row({ k, v }: { k: string; v: ReactNode }) {
   return <div className="flex justify-between gap-4 border-b border-line/70 py-2 text-[13px] last:border-0"><span className="text-muted">{k}</span><span className="text-right font-semibold">{v}</span></div>
@@ -401,7 +407,7 @@ type Ctx = {
 /* ================= App Root ================= */
 export default function App() {
   const [screen, setScreen] = useState<Screen>('map')
-  const [history, setHistory] = useState<Screen[]>([])
+  const [_history, setHistory] = useState<Screen[]>([])
   const [submitted, setSubmitted] = useState(false)
   const [incident, setIncident] = useState<Incident>(DEMO_INCIDENTS[0])
   const [scenario, setScenario] = useState<Scenario>('changes')
@@ -509,8 +515,9 @@ export default function App() {
           setAltRouteCoords([])
         }
       }
-    } catch (err: any) {
-      console.warn('Live routing failed, using fallback corridor:', err.message)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('Live routing failed, using fallback corridor:', msg)
       setRouteCoords([
         [targetOrigin.lat, targetOrigin.lng],
         [targetDest.lat, targetDest.lng],
@@ -616,8 +623,18 @@ export default function App() {
 
   // Initial Route & Places fetch on mount
   useEffect(() => {
-    recalculateRoute(origin, dest, travelMode)
-    loadPlaces('All', origin.lat, origin.lng)
+    let active = true
+    const init = async () => {
+      if (active) {
+        await recalculateRoute(origin, dest, travelMode)
+        await loadPlaces('All', origin.lat, origin.lng)
+      }
+    }
+    init()
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const ctx: Ctx = {
@@ -1389,8 +1406,8 @@ function Report({ back, go, draft, setDraft }: Ctx) {
   const [recSeconds, setRecSeconds] = useState(0)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const recognitionRef = useRef<any>(null)
-  const timerRef = useRef<any>(null)
+  const recognitionRef = useRef<unknown>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const cats = ['Waterlogging', 'Pothole', 'Obstruction', 'Streetlight outage', 'Road closure', 'Other']
 
@@ -1415,7 +1432,7 @@ function Report({ back, go, draft, setDraft }: Ctx) {
           desc: draft.desc ? draft.desc : `[Photo attached] Issue observed at selected location.`,
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn('Upload API error, using local object preview:', err)
       const localUrl = URL.createObjectURL(file)
       setDraft({
@@ -1439,47 +1456,58 @@ function Report({ back, go, draft, setDraft }: Ctx) {
       setRecSeconds((s) => s + 1)
     }, 1000)
 
-    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      try {
-        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-        const rec = new SpeechRec()
-        rec.continuous = true
-        rec.interimResults = true
-        rec.lang = 'en-IN'
-
-        rec.onresult = (event: any) => {
-          let transcript = ''
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript
+    if (typeof window !== 'undefined') {
+      const win = window as unknown as Record<string, unknown>
+      if ('webkitSpeechRecognition' in win || 'SpeechRecognition' in win) {
+        try {
+          const SpeechRec = (win.SpeechRecognition || win.webkitSpeechRecognition) as new () => {
+            continuous: boolean
+            interimResults: boolean
+            lang: string
+            onresult: (event: { resultIndex: number; results: Array<Array<{ transcript: string }>> }) => void
+            onerror: (e: unknown) => void
+            start: () => void
+            stop: () => void
           }
-          if (transcript.trim()) {
-            setDraft({
-              ...draft,
-              voice: true,
-              voiceTranscript: transcript,
-              desc: transcript,
-            })
+          const rec = new SpeechRec()
+          rec.continuous = true
+          rec.interimResults = true
+          rec.lang = 'en-IN'
+
+          rec.onresult = (event) => {
+            let transcript = ''
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              transcript += event.results[i][0].transcript
+            }
+            if (transcript.trim()) {
+              setDraft({
+                ...draft,
+                voice: true,
+                voiceTranscript: transcript,
+                desc: transcript,
+              })
+            }
           }
-        }
 
-        rec.onerror = (e: any) => {
-          console.warn('Speech recognition error:', e)
-        }
+          rec.onerror = (e: unknown) => {
+            console.warn('Speech recognition error:', e)
+          }
 
-        rec.start()
-        recognitionRef.current = rec
-      } catch (err) {
-        console.warn('Speech recognition start failed:', err)
+          rec.start()
+          recognitionRef.current = rec
+        } catch (err) {
+          console.warn('Speech recognition start failed:', err)
+        }
       }
     }
   }
 
   const stopRecording = () => {
     if (timerRef.current) clearInterval(timerRef.current)
-    if (recognitionRef.current) {
+    if (recognitionRef.current && typeof (recognitionRef.current as { stop?: () => void }).stop === 'function') {
       try {
-        recognitionRef.current.stop()
-      } catch (e) {}
+        (recognitionRef.current as { stop: () => void }).stop()
+      } catch { /* ignore */ }
     }
     setIsRecording(false)
     setDraft({
@@ -1850,7 +1878,7 @@ function Processing({ go }: Ctx) {
       })
     }, 700)
     return () => clearInterval(t)
-  }, [])
+  }, [go])
 
   return (
     <div className="flex min-h-[600px] flex-col items-center justify-center p-6 text-center">
@@ -1886,7 +1914,7 @@ function Review({ go, back, draft, setSubmitted, flash }: Ctx) {
       setSubmitted(true)
       flash('Report recorded in Evidence Ledger!')
       go('submitted')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn('Report submit error:', err)
       setSubmitted(true)
       go('submitted')
@@ -1964,7 +1992,7 @@ function Submitted({ go, tab }: Ctx) {
 }
 
 /* ---------------- Screen 7: Impact Replay ---------------- */
-function Replay({ back, go, scenario, setScenario, openIncident, origin, dest, activeRoutes, routeCoords, altRouteCoords }: Ctx) {
+function Replay({ back, go, scenario: _scenario, setScenario: _setScenario, openIncident, origin, dest, activeRoutes: _activeRoutes, routeCoords, altRouteCoords }: Ctx) {
   const [phase, setPhase] = useState<'before' | 'after'>('after')
   const [liveReplay, setLiveReplay] = useState<{ changeExplanation?: string; changed?: boolean } | null>(null)
 
@@ -2445,6 +2473,17 @@ function Planner({ back, go, places, selectPlaceAsDestination }: Ctx) {
             </label>
           ))}
         </Card>
+
+        <div>
+          <p className="mb-2 text-[14px] font-bold">Budget</p>
+          <div className="flex flex-wrap gap-2">
+            {['₹ (Budget)', '₹₹ (Moderate)', '₹₹₹ (Premium)'].map((b) => (
+              <Chip key={b} on={budget === b} onClick={() => setBudget(b)}>
+                {b}
+              </Chip>
+            ))}
+          </div>
+        </div>
 
         <div>
           <p className="mb-2 text-[14px] font-bold">Duration</p>

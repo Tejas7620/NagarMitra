@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Place } from '@/lib/types';
-import { Search, MapPin, Star, Navigation, Tag } from 'lucide-react';
+import { Search, MapPin, Star, Tag } from 'lucide-react';
 
 interface PlacesPanelProps {
   places: Place[];

@@ -79,17 +79,17 @@ export async function GET(request: NextRequest) {
       if (res.ok) {
         const raw = await res.json();
         if (Array.isArray(raw)) {
-          liveResults = raw.map((item: any, idx: number) => {
-            const shortName = item.name || item.display_name.split(',')[0].trim();
-            const cat = item.type || item.class || 'landmark';
+          liveResults = raw.map((item: Record<string, unknown>, idx: number) => {
+            const shortName = String(item.name || String(item.display_name || '').split(',')[0].trim());
+            const cat = String(item.type || item.class || 'landmark');
             return {
               id: `osm-${item.osm_id || idx}`,
               name: shortName,
-              displayName: item.display_name,
-              lat: parseFloat(item.lat),
-              lng: parseFloat(item.lon),
+              displayName: String(item.display_name || ''),
+              lat: parseFloat(String(item.lat)),
+              lng: parseFloat(String(item.lon)),
               category: cat,
-              address: item.display_name,
+              address: String(item.display_name || ''),
               source: 'live_nominatim' as const,
             };
           });
@@ -117,8 +117,14 @@ export async function GET(request: NextRequest) {
       attribution: '© OpenStreetMap contributors',
       timestamp: new Date().toISOString(),
     });
-  } catch (error: any) {
-    if (error?.digest?.startsWith?.('NEXT_')) {
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof (error as { digest?: string }).digest === 'string' &&
+      (error as { digest: string }).digest.startsWith('NEXT_')
+    ) {
       throw error;
     }
     console.error('Geocoding search error:', error);

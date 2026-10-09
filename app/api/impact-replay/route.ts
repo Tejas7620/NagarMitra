@@ -31,11 +31,11 @@ async function fetchRoutes(
     if (res.ok) {
       const data = await res.json();
       if (data.code === 'Ok' && data.routes?.length > 0) {
-        return data.routes.map((r: any, idx: number) => ({
+        return data.routes.map((r: { geometry: { coordinates: [number, number][] }; legs: Array<{ distance: number; duration: number }> }, idx: number) => ({
           id: uuidv4(),
           geometry: {
             type: 'LineString' as const,
-            coordinates: r.geometry.coordinates as [number, number][],
+            coordinates: r.geometry.coordinates,
           },
           distance: Math.round(r.legs[0].distance),
           duration: Math.round(r.legs[0].duration),
