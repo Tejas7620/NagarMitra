@@ -207,8 +207,8 @@ export async function POST(request: NextRequest) {
 
 // GET /api/routes — Query String Support
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   try {
-    const { searchParams } = new URL(request.url);
     const originLat = parseFloat(searchParams.get('originLat') || '18.5204');
     const originLng = parseFloat(searchParams.get('originLng') || '73.8420');
     const destLat = parseFloat(searchParams.get('destLat') || '18.5195');
@@ -235,6 +235,9 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err?.digest?.startsWith?.('NEXT_')) {
+      throw err;
+    }
     console.error('GET /api/routes exception:', err);
     return NextResponse.json(
       { error: 'Failed to calculate route', details: err.message },

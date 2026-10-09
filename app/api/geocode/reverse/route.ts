@@ -6,8 +6,8 @@ import { GeocodeReverseSchema } from '@/lib/validations/schemas';
 
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   try {
-    const { searchParams } = new URL(request.url);
     const parsed = GeocodeReverseSchema.safeParse({
       latitude: searchParams.get('latitude') || searchParams.get('lat') || undefined,
       longitude: searchParams.get('longitude') || searchParams.get('lng') || undefined,
@@ -71,6 +71,9 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
+    if (error?.digest?.startsWith?.('NEXT_')) {
+      throw error;
+    }
     console.error('Reverse geocoding error:', error);
     return NextResponse.json(
       { error: 'Failed to process reverse geocoding', details: error.message },

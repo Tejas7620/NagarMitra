@@ -43,8 +43,8 @@ function interpretWmoCode(code: number): { condition: string; icon: string } {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   try {
-    const { searchParams } = new URL(request.url);
     const queryObj = Object.fromEntries(searchParams.entries());
 
     const parseResult = WeatherQuerySchema.safeParse(queryObj);
@@ -121,7 +121,10 @@ export async function GET(request: NextRequest) {
         fetchedAt: new Date().toISOString(),
       },
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
+    if (error?.digest?.startsWith?.('NEXT_')) {
+      throw error;
+    }
     const isAbort = error instanceof Error && error.name === 'AbortError';
     console.warn('Weather service fetch error:', error);
     return NextResponse.json(

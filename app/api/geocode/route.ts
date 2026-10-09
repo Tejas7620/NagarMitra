@@ -17,8 +17,8 @@ export interface GeocodeResult {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   try {
-    const { searchParams } = new URL(request.url);
     const query = searchParams.get('q')?.trim() || '';
     const limit = parseInt(searchParams.get('limit') || '8', 10);
 
@@ -112,6 +112,9 @@ export async function GET(request: NextRequest) {
       count: combined.length,
     });
   } catch (error: any) {
+    if (error?.digest?.startsWith?.('NEXT_')) {
+      throw error;
+    }
     console.error('Geocoding error:', error);
     return NextResponse.json(
       { error: 'Failed to process geocoding request', results: [] },

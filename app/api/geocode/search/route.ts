@@ -18,8 +18,8 @@ export interface GeocodeResult {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   try {
-    const { searchParams } = new URL(request.url);
     const parsed = GeocodeSearchSchema.safeParse({
       q: searchParams.get('q') || '',
       limit: searchParams.get('limit') || undefined,
@@ -118,6 +118,9 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
+    if (error?.digest?.startsWith?.('NEXT_')) {
+      throw error;
+    }
     console.error('Geocoding search error:', error);
     return NextResponse.json(
       { error: 'Failed to process geocoding request', results: [] },
